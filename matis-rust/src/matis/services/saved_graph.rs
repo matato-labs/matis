@@ -1,3 +1,5 @@
+//! Coordinate saved graph reads and replacement across storage capabilities.
+
 use super::{
     diagnostics::DiagnosticService, graph_revisions::GraphRevisionService,
     mutation_candidates::MutationCandidateService, node_metrics::NodeMetricsService, nodes::NodeService,
@@ -11,16 +13,23 @@ use anyhow::Result;
 use serde_json::{Value, json};
 use std::collections::HashMap;
 
-// Composes capabilities; each capability alone owns its table ports.
+/// Compose graph capabilities without owning their table ports or opening a transaction.
 pub struct SavedGraphWorkflow {
+    /// Current graph metadata and revision identity.
     pub revisions: GraphRevisionService,
+    /// Hierarchy and file and symbol details.
     pub nodes: NodeService,
+    /// Graph edges and adjacency.
     pub relationships: RelationshipService,
+    /// Measured properties of saved nodes.
     pub metrics: NodeMetricsService,
+    /// Diagnostics emitted by analysis.
     pub diagnostics: DiagnosticService,
+    /// Mutation candidates emitted by analysis.
     pub candidates: MutationCandidateService,
 }
 impl SavedGraphWorkflow {
+    /// Read the current graph metadata and compute counts from its saved records.
     pub(crate) fn summary(&self, id: &str) -> Result<Option<GraphDto>> {
         self.revisions.get(id)?.map(|g| self.with_stats(g)).transpose()
     }
@@ -41,6 +50,7 @@ impl SavedGraphWorkflow {
         };
         Ok(graph)
     }
+    /// Assemble the saved inputs to a metrics report. Return `None` if no graph is saved.
     pub(crate) fn report_facts(&self, id: &str) -> Result<Option<Value>> {
         let Some(graph) = self.revisions.get(id)? else { return Ok(None) };
         let metrics = self.metrics.all(id)?;
@@ -64,9 +74,11 @@ impl SavedGraphWorkflow {
         Ok(Some(json!({"graphRevision":graph.graph_revision,"nodes":nodes,"edges":edges,"imports":imports,
             "diagnostics":self.diagnostics.all(id)?,"mutationCandidates":self.candidates.all(id)?})))
     }
+    /// Read saved candidates. Return `None` for an absent graph, not for an empty candidate list.
     pub(crate) fn mutation_candidates(&self, id: &str) -> Result<Option<Vec<Value>>> {
         self.revisions.get(id)?.map(|_| self.candidates.all(id)).transpose()
     }
+    /// Replace graph metadata and records in the caller's transaction, then return the saved summary.
     pub(crate) fn save(&self, id: &str, artifact: &Value) -> Result<GraphDto> {
         let graph = self.revisions.save(id, artifact)?;
         self.relationships.clear(id)?;

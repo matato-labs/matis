@@ -1,3 +1,5 @@
+//! Prepare graph records for CLI output.
+
 use serde_json::{Value, json};
 
 /// Recursively copy navigation JSON and label stored external identities as unresolved.

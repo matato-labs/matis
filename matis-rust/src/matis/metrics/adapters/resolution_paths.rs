@@ -1,3 +1,5 @@
+//! Normalize import paths and identify candidate files and symbols for resolution.
+
 use crate::domain::models::{ParsedFile, Symbol, file_key};
 use crate::metrics::resolution_contract::ImportRequest;
 use regex::Regex;

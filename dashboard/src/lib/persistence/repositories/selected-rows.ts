@@ -1,4 +1,4 @@
-// Bound parameters keep each batch below SQLite's variable limit.
+/** Read and concatenate batches of up to 500 keys to stay below SQLite's variable limit. */
 export function selectedRows<T>(
   keys: Array<string>,
   read: (batch: Array<string>) => Array<T>,

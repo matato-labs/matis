@@ -1,3 +1,5 @@
+//! Render source excerpts and their status for CLI output.
+
 use super::options::json_dump;
 use serde_json::{Value, json};
 

@@ -1,3 +1,5 @@
+//! Load and validate project settings for checks and mutation runs.
+
 use super::{architecture, forbidden::RULES};
 use crate::{mutations::config::MutationConfig, parsing::ignore_spec::IgnoreSpec};
 use anyhow::{Result, anyhow, bail};

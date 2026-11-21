@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import type { Repository } from '@/lib/api'
 
+/** Link to a registered repository and show whether it has a saved index. */
 export function RepositoryRow({ repository }: { repository: Repository }) {
   return (
     <Link

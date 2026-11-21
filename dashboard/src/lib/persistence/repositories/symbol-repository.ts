@@ -4,9 +4,11 @@ import { selectedRows } from './selected-rows'
 import type { AppDatabase } from './connection'
 import type { SymbolRepositoryPort } from '../../repository-ports'
 
+/** Read stored source spans and declaration metadata. */
 export class SymbolRepository implements SymbolRepositoryPort {
   constructor(private readonly database: AppDatabase) {}
 
+  /** Read symbol details for selected keys, or all symbols if keys are omitted. */
   read(id: string, keys?: Array<string>) {
     const read = (batch?: Array<string>) =>
       this.database

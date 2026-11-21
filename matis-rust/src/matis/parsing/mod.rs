@@ -1,3 +1,5 @@
+//! Discover supported sources and extract graph records through language adapters.
+
 pub(crate) mod actions;
 pub mod adapters;
 mod catalog;

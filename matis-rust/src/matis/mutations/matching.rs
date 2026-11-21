@@ -1,3 +1,5 @@
+//! Match source paths to configured mutation targets and rules.
+
 use super::config::{MutationConfig, MutationTarget};
 use indexmap::IndexMap;
 

@@ -1,3 +1,5 @@
+//! Read parsed CLI options and report invalid option values as usage errors.
+
 use anyhow::Result;
 use std::{collections::BTreeMap, fmt};
 

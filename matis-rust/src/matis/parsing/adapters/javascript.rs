@@ -1,3 +1,5 @@
+//! Normalize JavaScript call sites, including JSX and parenthesized expressions.
+
 use crate::parsing::syntax::{
     self, CallSite, CallTarget, DeclarationCarrier, callback_binding, callback_carrier, named_carrier,
 };

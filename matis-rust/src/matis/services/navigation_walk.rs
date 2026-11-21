@@ -1,3 +1,5 @@
+//! Traverse saved relationships with explicit limits and reconstruct routes.
+
 use crate::domain::navigation::{EdgeRequest, NavigationReader, TraversalRequest};
 use anyhow::Result;
 use serde_json::{Map, Value, json};

@@ -1,3 +1,5 @@
+//! Check direct file dependencies against path-scoped architecture rules.
+
 use super::artifact::projected_relationships;
 use crate::paths::globs;
 use serde_json::{Value, json};

@@ -1,3 +1,5 @@
+//! Parse command-line arguments, dispatch workflows, and format results.
+
 pub mod commands;
 pub mod graph;
 pub mod graph_options;

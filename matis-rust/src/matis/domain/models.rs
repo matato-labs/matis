@@ -1,3 +1,5 @@
+//! Define in-memory records for source discovery, parsing, and relationship resolution.
+
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 

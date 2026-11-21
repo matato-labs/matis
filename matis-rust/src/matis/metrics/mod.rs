@@ -1,3 +1,5 @@
+//! Measure source and dependency graphs, build reports, and evaluate project rules.
+
 pub mod adapters;
 mod architecture;
 pub mod artifact;

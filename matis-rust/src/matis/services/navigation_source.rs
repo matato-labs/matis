@@ -1,3 +1,5 @@
+//! Read source excerpts only after verifying that the live file matches the saved graph.
+
 use crate::domain::navigation::{NavigationReader, SourceOptions};
 use crate::paths::absolute_path;
 use anyhow::Result;

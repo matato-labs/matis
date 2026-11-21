@@ -1,3 +1,5 @@
+//! Parse and validate selectors, traversal bounds, and source options for graph commands.
+
 use super::options::Options;
 use crate::{
     domain::navigation::{PathRequest, SourceOptions, TraversalRequest},

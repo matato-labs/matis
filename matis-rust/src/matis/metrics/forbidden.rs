@@ -12,10 +12,12 @@ const CALLS: (&str, &str) = ("forbiddenCalls", "calls");
 const CONSTRUCTORS: (&str, &str) = ("forbiddenConstructors", "types");
 pub(super) const RULES: [(&str, &str); 2] = [CALLS, CONSTRUCTORS];
 
+/// Return whether any rule requires a source-level action scan.
 pub(crate) fn enabled(config: &Value) -> bool {
     RULES.iter().any(|(rule, _)| !config[*rule].as_array().unwrap().is_empty())
 }
 
+/// Append findings for configured calls or constructors in this file. Match source names without resolving graph targets.
 pub(crate) fn findings(config: &Value, syntax: ParsedSyntax<'_>, findings: &mut Vec<Value>) {
     let path = &syntax.source.path;
     let select = |(rule, _): (&str, &str)| {

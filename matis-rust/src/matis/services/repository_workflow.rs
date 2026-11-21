@@ -1,3 +1,5 @@
+//! Coordinate repository registration and graph persistence across capabilities in one transaction per storage operation.
+
 use super::{repositories::RepositoryService, saved_graph::SavedGraphWorkflow};
 pub use crate::indexer::analyze_repository as analyze_folder;
 use crate::{
@@ -11,12 +13,14 @@ use crate::{
 use anyhow::Result;
 use serde_json::Value;
 use std::path::Path;
+/// Entry point for registering, indexing, and reading saved repositories.
 pub struct RepositoryWorkflow {
     repository: RepositoryService,
     graph: SavedGraphWorkflow,
     unit: Box<dyn UnitOfWork>,
 }
 impl RepositoryWorkflow {
+    /// Compose storage services that share the transaction scope opened by `unit`.
     pub fn new(repository: RepositoryService, graph: SavedGraphWorkflow, unit: impl UnitOfWork + 'static) -> Self {
         Self { repository, graph, unit: Box::new(unit) }
     }
@@ -26,9 +30,11 @@ impl RepositoryWorkflow {
         scope.commit()?;
         Ok(result)
     }
+    /// Validate and commit a registration without reading its source or building a graph.
     pub fn register(&mut self, input: &Value) -> Result<RepositoryDto> {
         self.transaction(|s| s.repository.register(input))
     }
+    /// List registered repositories with the timestamp of their latest saved graph, if any.
     pub fn list(&mut self) -> Result<Vec<RepositoryDto>> {
         self.transaction(|s| {
             let imports = s.graph.revisions.imports().map_err(storage_error)?;
@@ -42,18 +48,21 @@ impl RepositoryWorkflow {
                 .collect())
         })
     }
+    /// Look up the saved graph summary by repository ID. Return `None` for a registered repository without a graph.
     pub fn get_architecture(&mut self, identifier: &str) -> Result<Option<GraphDto>> {
         self.transaction(|s| {
             let id = s.repository.identifier(identifier)?;
             s.graph.summary(&id).map_err(storage_error)
         })
     }
+    /// Read normalized report inputs by repository ID without accessing source files. Return `None` if no graph is saved.
     pub fn get_report_facts(&mut self, identifier: &str) -> Result<Option<Value>> {
         self.transaction(|s| {
             let id = s.repository.identifier(identifier)?;
             s.graph.report_facts(&id).map_err(storage_error)
         })
     }
+    /// Build a report from the named project's saved graph. Return status 409 if the project has no graph.
     pub fn report(&mut self, name: &str) -> Result<Value> {
         self.transaction(|s| s.report_inner(name))
     }
@@ -66,29 +75,38 @@ impl RepositoryWorkflow {
             .ok_or_else(|| RepositoryError::new("Repository has no indexed graph; run matis index first", 409))?;
         crate::metrics::report::build_report(&facts)
     }
+    /// Build a report for the sole registration at the resolved local folder, ignoring URL registrations.
+    /// Return an error for no match or an ambiguous match. Do not read source files.
     pub fn saved_folder_report(&mut self, root: &Path) -> Result<Value> {
         self.transaction(|s| s.saved_folder_report_inner(root))
     }
+    /// Read ordered candidates using the same folder selection as [`Self::saved_folder_report`].
+    /// Return status 409 if the registration has no saved graph. Do not read source files.
     pub fn saved_folder_candidates(&mut self, root: &Path) -> Result<Vec<Value>> {
         self.transaction(|s| s.saved_folder_candidates_inner(root))
     }
+    /// Analyze the folder for an existing named project, then atomically replace its saved graph.
     pub fn index(&mut self, name: &str, root: &Path) -> Result<GraphDto> {
         // Analyze before opening a write transaction.
         let id = self.transaction(|s| s.repository.project_identifier(name))?;
         let artifact = analyze_folder(root)?;
         self.save(&id, &artifact)
     }
+    /// Look up a registration ID by project name without requiring a saved graph.
     pub(crate) fn resolve(&mut self, name: &str) -> Result<Option<String>> {
         self.transaction(|s| s.repository.resolve(name))
     }
     #[cfg(test)]
+    /// Check whether a repository ID is registered, regardless of its graph state.
     pub(crate) fn exists(&mut self, id: &str) -> Result<bool> {
         self.transaction(|s| s.repository.exists(id))
     }
+    /// Validate the artifact and atomically replace the graph of an existing registration.
     pub(crate) fn save(&mut self, id: &str, artifact: &Value) -> Result<GraphDto> {
         validate_parentage(artifact)?;
         self.transaction(|s| s.graph.save(id, artifact).map_err(storage_error))
     }
+    /// Validate the artifact, then register the location and save its graph in the same transaction.
     pub(crate) fn save_new(&mut self, name: &str, location: &str, artifact: &Value) -> Result<GraphDto> {
         validate_parentage(artifact)?;
         self.transaction(|s| s.save_new_inner(name, location, artifact).map_err(storage_error))
@@ -110,14 +128,10 @@ impl RepositoryWorkflow {
         anyhow::ensure!(matching.len() == 1, "Expected one indexed project at this folder; run matis index first");
         Ok(matching.remove(0).1.name)
     }
-    /// Build a report for the sole registration whose resolved local location equals `root`.
-    /// Ignore URLs; propagate path, storage, name, ambiguity, and report errors. Do not index.
     fn saved_folder_report_inner(&mut self, root: &Path) -> Result<Value> {
         let name = self.folder_project_name(root)?;
         self.report_inner(&name)
     }
-    /// Read ordered saved candidates for the sole local registration at `root`, without reading sources.
-    /// Use the same selection/name errors as `saved_folder_report`; return status 409 without a graph.
     fn saved_folder_candidates_inner(&mut self, root: &Path) -> Result<Vec<Value>> {
         let name = self.folder_project_name(root)?;
         let id = self.repository.project_identifier(&name)?;

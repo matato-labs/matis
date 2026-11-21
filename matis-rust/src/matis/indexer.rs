@@ -24,6 +24,7 @@ pub fn analyze_repository(root: &Path) -> Result<GraphArtifact> {
     analyze_repository_with(root, |_| {})
 }
 
+/// Build a graph from disk and let `observe` inspect each available syntax tree before extraction.
 pub(crate) fn analyze_repository_with(root: &Path, observe: impl FnMut(ParsedSyntax<'_>)) -> Result<GraphArtifact> {
     let root = validate_repository(root)?;
     let mut repository = parse_files_with(discover_files(&root)?, observe)?;

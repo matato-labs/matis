@@ -1,3 +1,5 @@
+//! Render metrics reports as Markdown.
+
 pub use crate::mutations::report::code;
 use crate::mutations::report::render_candidates_markdown;
 use serde_json::Value;

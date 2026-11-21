@@ -1,3 +1,5 @@
+//! Turn analysis reports and configured project rules into actionable findings.
+
 use super::{
     architecture,
     config::{integer_text, validate_config},
@@ -156,6 +158,7 @@ pub fn build_check(report: &Value, config: &Value) -> Result<Value> {
     build_check_with(report, config, None)
 }
 
+/// Evaluate report limits and diagnostics. When analysis is supplied, also merge source findings and check direct graph dependencies.
 pub(crate) fn build_check_with(
     report: &Value,
     config: &Value,

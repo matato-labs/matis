@@ -22,6 +22,7 @@ type GraphViewServices = {
   diagnostics: DiagnosticService
 }
 
+/** Build a scoped view from one storage snapshot. Distinguish a missing registration, a missing graph, and a graph that needs reindexing. */
 export function graphView(
   id: string,
   scope: GraphScope,

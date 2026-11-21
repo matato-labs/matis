@@ -6,6 +6,7 @@ import type { NodeService } from './node-service'
 import type { RelationshipService } from './relationship-service'
 import type { NodeMetricsService } from './node-metrics-service'
 
+/** Load selected node details and file complexity totals. Compute dependency metrics from the full graph, not the view scope. */
 export function graphDetails(
   id: string,
   keys: Array<string>,

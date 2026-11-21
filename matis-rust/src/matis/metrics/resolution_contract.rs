@@ -1,3 +1,5 @@
+//! Define the shared requests and candidate records for relationship resolution.
+
 use crate::domain::models::{Call, ParsedFile, Symbol};
 use tree_sitter::Node;
 

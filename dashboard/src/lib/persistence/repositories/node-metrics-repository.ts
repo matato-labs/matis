@@ -4,9 +4,11 @@ import { selectedRows } from './selected-rows'
 import type { AppDatabase } from './connection'
 import type { NodeMetricsRepositoryPort } from '../../repository-ports'
 
+/** Read measured source metrics from normalized storage. */
 export class NodeMetricsRepository implements NodeMetricsRepositoryPort {
   constructor(private readonly database: AppDatabase) {}
 
+  /** Return stored measurements, including nulls, for selected node keys. */
   read(id: string, keys: Array<string>) {
     const read = (batch: Array<string>) =>
       this.database

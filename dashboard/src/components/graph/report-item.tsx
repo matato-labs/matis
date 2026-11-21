@@ -7,6 +7,7 @@ import type { ArtifactNode } from '@/lib/architecture-artifact'
 import type { GraphView } from '@/lib/graph-data'
 import type { GraphNode } from '@/lib/project-graph'
 
+/** Show one node's saved measurements, source location, and relationship evidence. */
 export function ReportItem({
   node,
   view,

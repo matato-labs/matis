@@ -1,3 +1,4 @@
+/** A repository error with an HTTP status suitable for a client response. */
 export class RepositoryError extends Error {
   constructor(
     message: string,
@@ -8,6 +9,7 @@ export class RepositoryError extends Error {
   }
 }
 
+/** Trim and validate a required string, using the field name in status 400 errors. */
 export const requiredText = (
   value: unknown,
   field: string,

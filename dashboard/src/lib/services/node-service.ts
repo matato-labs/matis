@@ -25,6 +25,7 @@ function hierarchy(rows: Array<TopologyNode>): Array<ArtifactNode> {
   })
 }
 
+/** Assemble graph hierarchy and source details from separate stores. */
 export class NodeService {
   constructor(
     private readonly nodes: NodeRepositoryPort,
@@ -33,6 +34,7 @@ export class NodeService {
     private readonly decorators: DecoratorRepositoryPort,
   ) {}
 
+  /** Build node ancestry and depth, and attach saved symbol line ranges. */
   topology(id: string) {
     const rows = this.nodes.read(id)
     const symbols = new Map(
@@ -47,6 +49,7 @@ export class NodeService {
     )
   }
 
+  /** Read file and symbol details only for the requested stable keys. */
   details(id: string, keys: Array<string>) {
     const files = new Map(
       this.files.read(id, keys).map((row) => [row.stableKey, row]),

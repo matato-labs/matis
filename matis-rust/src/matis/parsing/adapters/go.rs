@@ -1,3 +1,5 @@
+//! Normalize Go declarations for extraction.
+
 use crate::{
     parsing::syntax::{DeclarationCarrier, callback_carrier, named_carrier},
     syntax::{named_children, text},

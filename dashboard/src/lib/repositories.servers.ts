@@ -30,15 +30,20 @@ export function createRepositoryService(path?: string) {
 }
 
 export type RepositoryService = ReturnType<typeof createRepositoryService>
+/** Return the path used by the default dashboard repository service. */
 export const defaultDatabasePath = () => repositoryDatabasePath()
 let service: RepositoryService | undefined
 const getService = () => (service ??= createRepositoryService())
+/** Register a project in the shared service without indexing its source. */
 export const registerRepository = (input: unknown) =>
   getService().registerRepository(input)
+/** Read registrations and import times from one database snapshot. */
 export const listRepositories = () => getService().listRepositories()
+/** Read the saved graph for the requested scope. Return null if the project has never been indexed. */
 export const getArchitecture = (id: string, scope?: GraphScope) =>
   getService().getArchitecture(id, scope)
 
+/** Parse the requested graph scope. Folder and file scopes require a stable key. */
 export function architectureScope(parameters: URLSearchParams): GraphScope {
   const kind = parameters.get('kind') ?? 'repository'
   if (kind === 'repository') return { kind }
@@ -47,6 +52,7 @@ export function architectureScope(parameters: URLSearchParams): GraphScope {
   return { kind, key: requiredText(parameters.get('key'), 'key', 4096) }
 }
 
+/** Map known repository and scope errors to HTTP responses. Log unexpected errors without exposing their details. */
 export const repositoryErrorResponse = (error: unknown) => {
   if (error instanceof GraphScopeError)
     return Response.json({ error: error.message }, { status: 400 })

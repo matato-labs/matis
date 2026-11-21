@@ -147,6 +147,7 @@ function useGraphView(initial: GraphView, scope: GraphScope) {
   })
 }
 
+/** Keep scope and selection in sync when switching between graph and report views. */
 export function GraphExplorer({ initial }: { initial: GraphView }) {
   const [scope, setScope] = useState<GraphScope>({ kind: 'repository' })
   const [selected, setSelected] = useState<string | null>(null)

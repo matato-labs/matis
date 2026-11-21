@@ -1,3 +1,5 @@
+//! Dispatch CLI commands and map their results to process exit statuses.
+
 use super::options::{Options, UsageError, json_dump};
 use crate::{indexer::analyze_repository, paths::absolute_path};
 use anyhow::Result;

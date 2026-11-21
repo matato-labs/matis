@@ -1,3 +1,5 @@
+//! Normalize Kotlin declarations and call sites.
+
 use crate::{
     parsing::syntax::{
         self, CallSite, CallTarget, DeclarationCarrier, callback_binding, callback_carrier, named_carrier,
