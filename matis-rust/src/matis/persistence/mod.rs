@@ -1,3 +1,5 @@
+//! Implement storage ports with SQLite and manage connections, schema, and transaction scopes.
+
 pub(crate) mod candidates;
 pub(crate) mod database;
 pub(crate) mod decorators;

@@ -1,3 +1,5 @@
+//! Cache language-specific syntax sets used by relationship resolution.
+
 use super::resolution_policy::ResolutionAdapter;
 use crate::metrics::resolution_contract::SCOPES;
 use std::collections::{BTreeMap, BTreeSet};

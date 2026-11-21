@@ -1,3 +1,5 @@
+//! Dispatch read-only graph navigation commands.
+
 use super::{
     graph_options::GraphOptions,
     graph_output::graph_output,

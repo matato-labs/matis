@@ -156,6 +156,7 @@ pub fn parse_file(source: SourceFile) -> Result<ParsedFile> {
     parse_file_with(source, &mut |_| {})
 }
 
+/// Expose the syntax tree to `observe` when one is available, then extract records from the same source.
 pub(crate) fn parse_file_with(source: SourceFile, observe: &mut impl FnMut(ParsedSyntax<'_>)) -> Result<ParsedFile> {
     let adapter = get_adapter(&source.language)?;
     let content_hash = format!("{:x}", Sha256::digest(&source.source));
@@ -199,6 +200,7 @@ pub fn parse_files(files: Vec<SourceFile>) -> Result<ParsedRepository> {
     parse_files_with(files, |_| {})
 }
 
+/// Parse in input order and notify `observe` as syntax trees become available. Stop at the first fatal error.
 pub(crate) fn parse_files_with(
     files: Vec<SourceFile>,
     mut observe: impl FnMut(ParsedSyntax<'_>),

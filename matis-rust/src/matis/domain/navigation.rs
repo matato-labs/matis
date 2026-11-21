@@ -1,3 +1,5 @@
+//! Define graph navigation requests and the read interface for a selected snapshot.
+
 use anyhow::Result;
 use serde_json::{Value, json};
 use std::fmt;
@@ -70,6 +72,7 @@ pub struct SourceOptions {
     pub start_line: Option<serde_json::Number>,
 }
 
+/// Read graph records from one selected snapshot without changing its revision.
 pub trait NavigationReader {
     /// Borrow the repository identity and revision held by this reader.
     fn snapshot(&self) -> &GraphSnapshot;

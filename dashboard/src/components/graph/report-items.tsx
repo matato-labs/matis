@@ -21,6 +21,7 @@ export type ReportItemProps = {
   onExplore: (node?: GraphNode) => void
 }
 
+/** Filter available report records and distinguish local items from outgoing references outside the scope. */
 export function ReportItems(props: ReportItemProps) {
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState('all')

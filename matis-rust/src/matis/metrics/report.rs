@@ -1,3 +1,5 @@
+//! Build metrics reports from a fresh graph artifact or saved graph records.
+
 pub use super::report_markdown::render_markdown;
 use super::{
     artifact::{LEVELS, build_dependency_views},

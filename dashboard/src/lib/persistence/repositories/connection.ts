@@ -8,6 +8,7 @@ export type AppDatabase = Pick<
   'select' | 'insert' | 'transaction'
 >
 
+/** Resolve the database setting from DATABASE_PATH, XDG_DATA_HOME, or the home directory. */
 export const defaultDatabasePath = () =>
   process.env.DATABASE_PATH ||
   join(

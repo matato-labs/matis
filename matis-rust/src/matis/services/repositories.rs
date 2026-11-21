@@ -1,3 +1,5 @@
+//! Validate registrations and resolve project selectors against the repository catalog.
+
 use crate::{
     domain::{
         navigation::{ProjectSelector, error},
@@ -20,10 +22,12 @@ fn required_text(value: &str, field: &str, maximum: usize) -> Result<String> {
     Ok(text.into())
 }
 
+/// Processes registrations and selects projects without reading source files or graph contents.
 pub struct RepositoryService {
     repository: Box<dyn RepositoryPort>,
 }
 impl RepositoryService {
+    /// Bind the registration store. The caller owns the transaction scope.
     pub fn new(repository: impl RepositoryPort + 'static) -> Self {
         Self { repository: Box::new(repository) }
     }
@@ -39,10 +43,11 @@ impl RepositoryService {
             &required_text(input["location"].as_str().unwrap_or(""), "location", 4096)?,
         )
     }
-    /// Return registrations and their latest graph import times; propagate store errors.
+    /// Return registrations without joining graph revision metadata. Propagate store errors.
     pub fn list(&mut self) -> Result<Vec<RepositoryDto>> {
         self.repository.list()
     }
+    /// Validate an existing repository ID, returning status 404 if it is not registered.
     pub(crate) fn identifier(&mut self, identifier: &str) -> Result<String> {
         let id = required_text(identifier, "repositoryId", 200)?;
         if !self.repository.exists(&id)? {
@@ -51,20 +56,25 @@ impl RepositoryService {
         Ok(id)
     }
 
+    /// Look up the registration ID for a project name.
     pub(crate) fn resolve(&self, name: &str) -> Result<Option<String>> {
         self.repository.resolve(name)
     }
     #[cfg(test)]
+    /// Check whether the registration store contains this ID.
     pub(crate) fn exists(&self, id: &str) -> Result<bool> {
         self.repository.exists(id)
     }
+    /// Pass a prepared name and location directly to the registration store.
     pub(crate) fn register_location(&self, name: &str, location: &str) -> Result<RepositoryDto> {
         self.repository.register(name, location)
     }
+    /// Validate a project name and resolve it to an ID, or return status 404 if not registered.
     pub(crate) fn project_identifier(&self, name: &str) -> Result<String> {
         let name = required_text(name, "project name", 200)?;
         self.repository.resolve(&name)?.ok_or_else(|| RepositoryError::new("Repository not found", 404).into())
     }
+    /// Select a unique registration explicitly or by the closest local root containing the requested directory.
     pub(crate) fn select(&self, project: ProjectSelector<'_>) -> Result<(String, String)> {
         let rows = match project {
             ProjectSelector::Name(name) => {

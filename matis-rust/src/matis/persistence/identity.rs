@@ -1,8 +1,12 @@
+//! Generate timestamps and IDs for persisted records.
+
 use anyhow::Result;
 use std::time::{SystemTime, UNIX_EPOCH};
+/// Return Unix time in milliseconds, or zero if the clock is set before the epoch.
 pub fn now() -> i64 {
     SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis() as i64
 }
+/// Generate a random version-4 UUID, optionally without hyphens. Propagate random source errors.
 pub fn uuid(compact: bool) -> Result<String> {
     let mut data = [0u8; 16];
     getrandom::fill(&mut data)?;

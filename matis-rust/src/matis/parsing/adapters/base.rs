@@ -1,3 +1,5 @@
+//! Select the adapter hooks used for a supported source language.
+
 use super::{elixir, go, java, javascript, kotlin, python, rust, typescript};
 use crate::parsing::{
     discovery::require_supported_language,

@@ -1,14 +1,18 @@
+//! Read normalized graph data through storage capabilities bound to a single snapshot.
+
 use super::{repositories::RepositoryService, saved_graph::SavedGraphWorkflow};
 use crate::domain::navigation::{
     ChildrenRequest, EdgeRequest, GraphSnapshot, NavigationReader, ProjectSelector, error,
 };
 use anyhow::Result;
 use serde_json::{Value, json};
+/// Navigation reader for the selected project and its saved graph revision.
 pub struct CapabilityReader {
     graph: SavedGraphWorkflow,
     snapshot: GraphSnapshot,
 }
 impl CapabilityReader {
+    /// Select a registered project and capture its current graph metadata. Fail if selection is ambiguous or no graph is saved.
     pub fn new(repository: RepositoryService, graph: SavedGraphWorkflow, project: ProjectSelector<'_>) -> Result<Self> {
         let (id, location) = repository.select(project)?;
         let saved =
@@ -21,6 +25,7 @@ impl CapabilityReader {
         };
         Ok(Self { graph, snapshot })
     }
+    /// Require the captured revision to match `revision` when supplied. Do not fetch historical graphs.
     pub fn at_revision(self, revision: Option<&str>) -> Result<Self> {
         if let Some(expected) = revision.filter(|r| *r != self.snapshot.revision) {
             return Err(error(format!(

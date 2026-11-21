@@ -22,6 +22,7 @@ type Props = {
   onOpen: (node: GraphNode) => void
 }
 
+/** Search within the current graph scope or inspect the selected node. */
 export function GraphSidebar({
   graph,
   details,

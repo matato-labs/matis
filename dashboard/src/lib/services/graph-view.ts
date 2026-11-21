@@ -22,6 +22,7 @@ type GraphViewServices = {
   diagnostics: DiagnosticService
 }
 
+/** Build a scoped view from saved data in the caller's snapshot. Return undefined for a missing registration, null for missing graph metadata, or needsReindex for a legacy graph. */
 export function graphView(
   id: string,
   scope: GraphScope,

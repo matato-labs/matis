@@ -2,6 +2,7 @@ import { AlertTriangle, CircleAlert, CircleCheck, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { GraphView, ViewCycle } from '@/lib/graph-data'
 
+/** Show import cycles that touch the current scope and diagnostics for the entire repository. */
 export function ReportFindings({
   view,
   onCycleScope,

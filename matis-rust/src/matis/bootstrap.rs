@@ -1,3 +1,5 @@
+//! Wire CLI workflows to SQLite storage. Use this module to open repositories or graph navigation.
+
 pub use crate::persistence::database::migrate_database;
 use crate::{
     domain::navigation::ProjectSelector,
@@ -55,6 +57,7 @@ pub fn navigation_service(
     };
     Ok(NavigationService::new(navigation_reader(selector, revision, path)?))
 }
+/// Select one project in a read-only SQLite snapshot and reject a mismatched revision.
 pub(crate) fn navigation_reader(
     project: ProjectSelector<'_>,
     revision: Option<&str>,

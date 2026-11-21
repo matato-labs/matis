@@ -1,3 +1,5 @@
+//! Measure decision and loop complexity using language-specific syntax policies.
+
 use super::adapters::base::{DEFAULT_METRICS, MetricPolicy};
 use crate::{domain::models::Complexity, syntax::named_children};
 use tree_sitter::Node;

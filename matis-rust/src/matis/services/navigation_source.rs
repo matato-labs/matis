@@ -1,3 +1,5 @@
+//! Read bounded local files and return source excerpts only if their hashes match the saved graph.
+
 use crate::domain::navigation::{NavigationReader, SourceOptions};
 use crate::paths::absolute_path;
 use anyhow::Result;

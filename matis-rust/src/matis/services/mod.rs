@@ -1,3 +1,5 @@
+//! Compose analysis and storage capabilities into indexing, reporting, and navigation workflows.
+
 pub mod diagnostics;
 pub mod factories;
 pub mod graph_revisions;

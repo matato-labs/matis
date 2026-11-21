@@ -1,3 +1,5 @@
+//! Assemble graph artifacts and project symbol relationships to coarser dependency levels.
+
 use super::{
     cycles::circular_dependencies,
     dependency_metrics::{METRIC_NAMES, dependency_metrics},

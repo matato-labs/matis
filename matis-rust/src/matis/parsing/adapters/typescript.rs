@@ -1,3 +1,5 @@
+//! Normalize TypeScript declaration carriers for extraction.
+
 use super::javascript;
 use crate::{
     language_syntax::property_callable,

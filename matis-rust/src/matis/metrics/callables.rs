@@ -1,3 +1,5 @@
+//! Measure callable spans, parameters, and complexity from source.
+
 use super::{adapters::get_metric_adapter, complexity::calculate_complexity};
 use crate::domain::models::{ParsedFile, ParsedRepository};
 use anyhow::{Result, anyhow};

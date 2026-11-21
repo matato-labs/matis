@@ -4,9 +4,11 @@ import { selectedRows } from './selected-rows'
 import type { AppDatabase } from './connection'
 import type { DecoratorRepositoryPort } from '../../repository-ports'
 
+/** Read saved decorator text for selected symbols. */
 export class DecoratorRepository implements DecoratorRepositoryPort {
   constructor(private readonly database: AppDatabase) {}
 
+  /** Read decorators for the selected keys in stored order within each symbol. */
   read(id: string, keys: Array<string>) {
     const read = (batch: Array<string>) =>
       this.database

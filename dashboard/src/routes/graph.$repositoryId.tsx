@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { GraphExplorer } from '@/components/graph/graph-explorer'
 import type { ImportedGraph } from '@/lib/api'
 
+/** Open a repository's saved graph or show why it is not ready to explore. */
 export const Route = createFileRoute('/graph/$repositoryId')({
   component: GraphPage,
 })

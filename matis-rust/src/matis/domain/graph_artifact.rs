@@ -1,3 +1,5 @@
+//! Validate graph artifact shapes and parent chains before writing to storage.
+
 pub use super::models::SOURCE_METRIC_NAMES as METRIC_NAMES;
 use anyhow::{Result, anyhow, ensure};
 use serde_json::Value;
@@ -19,6 +21,7 @@ pub fn optional_mapping(value: &Value, name: &str) -> Result<()> {
     Ok(())
 }
 
+/// Source span fields used to recognize symbol records.
 pub const POSITIONS: [&str; 4] = ["startLine", "startColumn", "endLine", "endColumn"];
 /// Return an owned string field, or `None` when `name` is absent or not a string.
 pub fn text(value: &Value, name: &str) -> Option<String> {

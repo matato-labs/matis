@@ -1,3 +1,5 @@
+//! Find circular import groups in the resolved dependency graph.
+
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};

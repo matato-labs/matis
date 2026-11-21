@@ -63,4 +63,5 @@ export function createRepositoryContext(path?: string) {
   }
 }
 
+/** Expose the dashboard's default database path without opening a connection. */
 export const repositoryDatabasePath = () => defaultDatabasePath()

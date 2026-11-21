@@ -2,12 +2,14 @@ import { RepositoryError, requiredText } from './repository-error'
 import type { RepositoryRepositoryPort } from '../repository-ports'
 import type { GraphRevisionService } from './graph-revision-service'
 
+/** Validate project registration and combine it with saved revision metadata. */
 export class RepositoryService {
   constructor(
     private readonly repositories: RepositoryRepositoryPort,
     private readonly revisions: GraphRevisionService,
   ) {}
 
+  /** Validate and insert a registration. Reject duplicate names and do not index source. */
   register(input: unknown) {
     if (!input || typeof input !== 'object' || Array.isArray(input))
       throw new RepositoryError(
@@ -31,10 +33,12 @@ export class RepositoryService {
     return { ...row, importedAt: null }
   }
 
+  /** Look up a registration by exact repository ID. */
   find(id: string) {
     return this.repositories.find(id)
   }
 
+  /** List projects with the import time of their current normalized graph, if any. */
   list() {
     const rows = this.repositories.list()
     const revisions = this.revisions.read(rows.map((row) => row.id))

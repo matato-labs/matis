@@ -1,3 +1,5 @@
+//! Expose bounded navigation commands over a selected graph snapshot.
+
 use super::{
     navigation_source::source_excerpt,
     navigation_walk::{route, traverse},

@@ -1,3 +1,5 @@
+//! Normalize Elixir declarations, invocations, and pipeline call sites.
+
 use crate::{
     language_syntax::{DECLARATIONS, declaration_head},
     parsing::queries,

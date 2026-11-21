@@ -4,9 +4,11 @@ import { selectedRows } from './selected-rows'
 import type { AppDatabase } from './connection'
 import type { FileRepositoryPort } from '../../repository-ports'
 
+/** Read file metadata from the saved graph. */
 export class FileRepository implements FileRepositoryPort {
   constructor(private readonly database: AppDatabase) {}
 
+  /** Return the stored byte counts and hashes for the selected node keys. */
   read(id: string, keys: Array<string>) {
     const read = (batch: Array<string>) =>
       this.database

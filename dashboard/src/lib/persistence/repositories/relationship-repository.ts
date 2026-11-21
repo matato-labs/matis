@@ -4,9 +4,11 @@ import { selectedRows } from './selected-rows'
 import type { AppDatabase } from './connection'
 import type { RelationshipRepositoryPort } from '../../repository-ports'
 
+/** Read graph edges for rendering and dependency analysis. */
 export class RelationshipRepository implements RelationshipRepositoryPort {
   constructor(private readonly database: AppDatabase) {}
 
+  /** Read non-containment edges in artifact order. Filter by source key when keys are supplied. */
   outgoing(id: string, keys?: Array<string>) {
     const read = (batch?: Array<string>) =>
       this.database
@@ -36,6 +38,7 @@ export class RelationshipRepository implements RelationshipRepositoryPort {
     )
   }
 
+  /** Read only the endpoint keys of non-containment edges. */
   relations(id: string) {
     return this.database
       .select({
@@ -50,6 +53,7 @@ export class RelationshipRepository implements RelationshipRepositoryPort {
       .all()
   }
 
+  /** Read saved import edges, excluding type-only imports. */
   imports(id: string) {
     return this.database
       .select()

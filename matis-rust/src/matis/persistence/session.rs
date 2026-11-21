@@ -1,3 +1,5 @@
+//! Share one SQLite transaction across all stores in a workflow.
+
 use super::{
     database::{create_engine, run, storage_error},
     navigation_database::{ReadTransaction, readonly_session},
@@ -17,12 +19,15 @@ struct State {
 #[derive(Clone)]
 pub(crate) struct Session(Arc<Mutex<State>>);
 impl Session {
+    /// Open a writable database without migrating it or starting a transaction.
     pub fn writable(path: Option<&Path>) -> Result<Self> {
         Ok(Self(Arc::new(Mutex::new(State { database: Some(create_engine(path)?), transaction: None }))))
     }
+    /// Open a read-only database and pin a transaction for snapshot reads.
     pub fn readonly(path: Option<&Path>) -> Result<Self> {
         Ok(Self(Arc::new(Mutex::new(State { database: None, transaction: Some(readonly_session(path)?) }))))
     }
+    /// Give a store access to the active transaction, or fail if no scope is open.
     pub fn with<T>(&self, operation: impl FnOnce(&DatabaseTransaction) -> Result<T>) -> Result<T> {
         let state = self.0.lock().expect("storage session");
         operation(state.transaction.as_ref().ok_or_else(|| anyhow::anyhow!("Storage requires a transaction"))?)

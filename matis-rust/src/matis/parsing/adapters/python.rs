@@ -1,3 +1,5 @@
+//! Normalize Python declarations for extraction.
+
 use crate::{
     parsing::{
         queries,

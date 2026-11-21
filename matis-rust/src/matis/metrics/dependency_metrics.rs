@@ -1,3 +1,5 @@
+//! Measure coupling and reachability in projected dependency graphs.
+
 use super::cycles::{Adjacency, strongly_connected_components};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};

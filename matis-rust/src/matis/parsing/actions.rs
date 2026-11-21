@@ -28,6 +28,7 @@ pub(crate) struct Action {
     pub line: usize,
 }
 
+/// Visit recognizable source calls and explicit constructors. Skip erroneous syntax and non-call sites.
 pub(crate) fn visit(syntax: &ParsedSyntax<'_>, mut observe: impl FnMut(Action)) {
     let source = &syntax.source.source;
     let adapter = LanguageAdapter { language: &syntax.source.language };
