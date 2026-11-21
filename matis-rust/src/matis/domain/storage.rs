@@ -1,4 +1,4 @@
-//! Storage contracts for repository and graph services. Calls use a scope opened by the owning workflow.
+//! Storage contracts for repository and graph services. The caller supplies the active transaction or read snapshot.
 
 use super::{
     navigation::{AdjacencyFilter, ChildrenRequest, EdgeRequest},
@@ -33,7 +33,7 @@ pub trait RepositoryPort: Send {
 }
 /// Metadata for the latest saved graph of each repository.
 pub trait GraphRevisionPort: Send {
-    /// Return the current graph metadata, or `None` before the first save.
+    /// Return the current normalized graph metadata, or `None` if no normalized graph is saved.
     fn get(&self, id: &str) -> Result<Option<GraphDto>>;
     /// Return graph import times keyed by repository ID.
     fn imports(&self) -> Result<HashMap<String, i64>>;
@@ -48,7 +48,7 @@ pub trait NodePort: Send {
     fn get(&self, id: &str, key: &str) -> Result<Option<Value>>;
     /// Read a bounded set of root nodes.
     fn roots(&self, id: &str, limit: usize) -> Result<Vec<Value>>;
-    /// Search node names and keys and return a bounded result.
+    /// Match an exact stable key or search paths, names, and qualified names. Limit the result.
     fn find(&self, id: &str, query: &str, limit: usize) -> Result<Vec<Value>>;
     /// Read direct children in artifact order using the requested offset and limit.
     fn children(&self, id: &str, request: &ChildrenRequest<'_>) -> Result<Vec<Value>>;

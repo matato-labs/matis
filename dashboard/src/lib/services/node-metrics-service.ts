@@ -18,7 +18,7 @@ export class NodeMetricsService {
     )
   }
 
-  /** Return saved weighted complexity totals for the requested nodes. */
+  /** Return the saved weighted complexity for each matching row, including null values. */
   complexities(id: string, keys: Array<string>) {
     return this.metrics.read(id, keys).map((row) => ({
       stableKey: row.stableKey,

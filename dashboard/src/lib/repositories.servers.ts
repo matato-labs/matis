@@ -39,7 +39,7 @@ export const registerRepository = (input: unknown) =>
   getService().registerRepository(input)
 /** Read registrations and import times from one database snapshot. */
 export const listRepositories = () => getService().listRepositories()
-/** Read the saved graph for the requested scope. Return null if the project has never been indexed. */
+/** Read the scoped graph. Return null if no graph metadata exists, or needsReindex for a legacy graph. Throw 404 for a missing registration. */
 export const getArchitecture = (id: string, scope?: GraphScope) =>
   getService().getArchitecture(id, scope)
 

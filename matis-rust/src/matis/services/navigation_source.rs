@@ -1,4 +1,4 @@
-//! Read source excerpts only after verifying that the live file matches the saved graph.
+//! Read bounded local files and return source excerpts only if their hashes match the saved graph.
 
 use crate::domain::navigation::{NavigationReader, SourceOptions};
 use crate::paths::absolute_path;

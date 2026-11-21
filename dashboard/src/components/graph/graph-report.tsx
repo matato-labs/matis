@@ -5,7 +5,7 @@ import { ReportItems } from './report-items'
 import type { ReportItemProps } from './report-items'
 import type { ViewCycle } from '@/lib/graph-data'
 
-/** Present saved measurements and diagnostics for the current scope, without evaluating check limits. */
+/** Show scoped measurements and cycles, plus repository-wide diagnostics. Do not evaluate check limits. */
 export function GraphReport({
   onCycleScope,
   ...props

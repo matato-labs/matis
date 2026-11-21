@@ -85,7 +85,8 @@ impl RepositoryWorkflow {
     pub fn saved_folder_candidates(&mut self, root: &Path) -> Result<Vec<Value>> {
         self.transaction(|s| s.saved_folder_candidates_inner(root))
     }
-    /// Analyze the folder for an existing named project, then atomically replace its saved graph.
+    /// Resolve the project in a read scope, then analyze the folder outside the transaction.
+    /// Replace the saved graph atomically in a separate write scope.
     pub fn index(&mut self, name: &str, root: &Path) -> Result<GraphDto> {
         // Analyze before opening a write transaction.
         let id = self.transaction(|s| s.repository.project_identifier(name))?;
