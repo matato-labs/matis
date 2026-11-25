@@ -75,6 +75,9 @@ fn measurement(node: &Value, dependencies: &BTreeMap<String, Value>, files: &BTr
         for (name, label) in COMPLEXITY_METRICS {
             metrics[label] = properties[name].clone();
         }
+        if !properties["nestedTryCatches"].is_null() {
+            metrics["nestedTryCatches"] = properties["nestedTryCatches"].clone();
+        }
     }
     for values in [files.get(key(node)), dependencies.get(key(node))].into_iter().flatten() {
         metrics.as_object_mut().unwrap().extend(values.as_object().unwrap().clone());
@@ -154,7 +157,9 @@ fn optional_array<'a>(value: &'a Value, field: &str) -> Result<Option<&'a Vec<Va
 fn record_node(node: &Value) -> Value {
     let mut result = node.clone();
     let mut properties = json!({});
-    for name in COMPLEXITY_METRICS.iter().map(|(name, _)| *name).chain(["lineCount", "parameterCount"]) {
+    for name in
+        COMPLEXITY_METRICS.iter().map(|(name, _)| *name).chain(["lineCount", "parameterCount", "nestedTryCatches"])
+    {
         properties[name] = node[name].clone();
     }
     result["properties"] = properties;

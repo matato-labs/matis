@@ -10,6 +10,7 @@ pub const REVISIONS: &[(&str, &str)] = &[
     ("0003_graph_relations", include_str!("versions/0003_graph_relations.sql")),
     ("0004_drop_graph_artifact", include_str!("versions/0004_drop_graph_artifact.sql")),
     ("0005_mutation_candidates", include_str!("versions/0005_mutation_candidates.sql")),
+    ("0006_nested_try_catches", include_str!("versions/0006_nested_try_catches.sql")),
 ];
 pub struct Migrator;
 #[async_trait::async_trait]

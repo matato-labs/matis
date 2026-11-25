@@ -9,6 +9,7 @@ pub mod complexity;
 pub mod config;
 pub mod cycles;
 pub mod dependency_metrics;
+mod exception_policy;
 pub(crate) mod forbidden;
 pub mod receiver_resolution;
 pub mod receiver_syntax;

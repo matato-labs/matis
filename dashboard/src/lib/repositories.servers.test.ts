@@ -80,7 +80,7 @@ test('UI opens a Rust-migrated database without owning migrations', () => {
   expect(listRepositories(database)).toEqual([repository])
   expect(
     database.query('SELECT version_num FROM alembic_version').get(),
-  ).toEqual({ version_num: '0005_mutation_candidates' })
+  ).toEqual({ version_num: '0006_nested_try_catches' })
   expect(
     database
       .query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
@@ -149,7 +149,10 @@ test('Rust indexes repositories registered by the UI, and the UI sees reindex wr
   const source = join(directory, 'source')
   mkdirSync(source)
   const file = join(source, 'main.py')
-  writeFileSync(file, 'def run():\n    return 1\n')
+  writeFileSync(
+    file,
+    'def run():\n    try:\n        try: return 1\n        except ValueError: return 0\n    except OSError: return -1\n',
+  )
   const repository = registerRepository(
     { name: 'Shared', location: source },
     database,
@@ -157,13 +160,17 @@ test('Rust indexes repositories registered by the UI, and the UI sees reindex wr
   const summary = JSON.parse(matis('index', '-f', source))
   const first = fileView(repository.id)
   expect(summary.repositoryId).toBe(repository.id)
-  expect(first.graph.nodes.some((node) => node.label === 'run')).toBe(true)
+  expect(
+    first.graph.nodes.find((node) => node.label === 'run')?.properties
+      ?.nestedTryCatches,
+  ).toBe(1)
   writeFileSync(file, 'def replacement():\n    return 2\n')
   matis('index', '-f', source)
   const replacement = fileView(repository.id)
   expect(
-    replacement.graph.nodes.some((node) => node.label === 'replacement'),
-  ).toBe(true)
+    replacement.graph.nodes.find((node) => node.label === 'replacement')
+      ?.properties?.nestedTryCatches,
+  ).toBe(0)
   expect(replacement.graph.nodes.some((node) => node.label === 'run')).toBe(
     false,
   )
@@ -192,6 +199,14 @@ test('Rust indexes repositories registered by the UI, and the UI sees reindex wr
     idNamedGraph.graph.nodes.some((node) => node.label === 'id_named'),
   ).toBe(true)
   expect(fileView(repository.id)).toEqual(replacement)
+  service.close()
+  database.run('ALTER TABLE graph_node_metrics DROP COLUMN nested_try_catches')
+  service = createRepositoryService(path)
+  const legacy = fileView(repository.id).graph.nodes.find(
+    (node) => node.label === 'replacement',
+  )
+  expect(legacy?.properties?.cyclomaticComplexity).toBe(1)
+  expect(legacy?.properties).not.toHaveProperty('nestedTryCatches')
   expect(
     database
       .query(

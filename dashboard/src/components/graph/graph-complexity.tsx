@@ -10,6 +10,7 @@ export function GraphComplexity({
     ['Cyclomatic complexity', properties?.baseCyclomaticComplexity],
     ['Nested decisions extra', properties?.nestedCyclomaticComplexity],
     ['Nested loops extra', properties?.loopNestedComplexity],
+    ['Nested try/catch extra', properties?.nestedTryCatches],
     ['Maximum decision depth', properties?.maxDecisionDepth],
   ] as const
   return (

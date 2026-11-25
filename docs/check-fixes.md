@@ -26,6 +26,25 @@ Use early returns for invalid inputs and special cases. Extract deeply nested de
 
 Use an index, map, or set instead of repeatedly scanning the same collection. Extract independent iterations when this makes the algorithm clearer. Check runtime and memory use; moving a loop alone does not make it faster.
 
+## maxNestedTryCatches
+
+Extract an operation and its local recovery into a separate function, or handle the failure at one level. Preserve the handler order and which errors each handler catches. Do not move cleanup into a handler.
+
+Matis counts each inner try with a handler once per function or method, even inside multiple outer tries. It checks the protected body and all handler, else, and cleanup clauses of a qualifying try. Siblings, multiple handlers on one try, and other callable or type bodies do not add to the enclosing function's count. Cleanup-only constructs do not count or create nesting, but they do not interrupt nesting between actual handlers.
+
+| Language or dialect | Counts as exception handling |
+| --- | --- |
+| JavaScript and JSX (JavaScript grammar) | `try` with `catch` |
+| TypeScript and TSX | `try` with `catch` |
+| Python | `try` with `except` or `except*` |
+| Java | `try` or try-with-resources with `catch` |
+| Kotlin | `try` with `catch` |
+| Elixir | `try` with `rescue` or `catch`, including keyword syntax and implicit handlers on function bodies |
+| Go | Not applicable. Error checks, `defer`, and `recover` do not count. |
+| Rust | Not applicable. `?` and try blocks do not catch exceptions. |
+
+Each nested try adds one point to weighted complexity, like each nested loop. It does not add to base cyclomatic complexity or decision depth. The default maximum is zero, also when an existing configuration omits this setting. Set `"maxNestedTryCatches": null` to disable this check without removing the weighted penalty. Older saved graphs lack this count; reindex to measure it.
+
 ## maxCircularImportGroups
 
 Remove a dependency from the reported cycle. Move shared definitions into a lower-level module, or pass a dependency through a function parameter. Keep dependencies flowing in one direction.

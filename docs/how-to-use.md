@@ -27,6 +27,7 @@ Put overrides in `matis.json` at the root of the folder you analyze. Omitted lim
 | `maxWeightedComplexity` | 8 | Simplify branching or separate distinct cases. |
 | `maxDecisionDepth` | 3 | Use early returns or extract the decision from the surrounding logic. |
 | `maxNestedLoops` | 0 | Check whether a lookup, grouping step, or separate pass removes the need for the inner loop. |
+| `maxNestedTryCatches` | 0 | Separate nested exception handlers into focused operations. |
 | `maxCircularImportGroups` | 0 | Follow the example cycle. Remove one edge by moving a shared contract or passing in the dependency. Type-only imports do not establish runtime cycles. |
 | `maxFanIn` | 30 | If many files depend on this file, keep its interface stable. Split it if unrelated callers depend on unrelated parts. |
 | `maxFanOut` | 20 | If this file depends on many others, remove unused dependencies or separate unrelated responsibilities. |
@@ -47,6 +48,7 @@ Copy the keys you need into your root `matis.json`. These values are examples, n
   "maxWeightedComplexity": 10,
   "maxDecisionDepth": 3,
   "maxNestedLoops": 1,
+  "maxNestedTryCatches": 0,
   "maxCircularImportGroups": 0,
   "maxFanIn": 25,
   "maxFanOut": 15,

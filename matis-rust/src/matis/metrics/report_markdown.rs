@@ -4,13 +4,14 @@ pub use crate::mutations::report::code;
 use crate::mutations::report::render_candidates_markdown;
 use serde_json::Value;
 
-pub const METRIC_LABELS: [(&str, &str); 14] = [
+pub const METRIC_LABELS: [(&str, &str); 15] = [
     ("lineCount", "Lines"),
     ("parameterCount", "Parameters"),
     ("cyclomaticComplexity", "Cyclomatic complexity"),
     ("weightedComplexity", "Weighted complexity"),
     ("nestedDecisionPenalty", "Nested decision penalty"),
     ("nestedLoops", "Nested loops"),
+    ("nestedTryCatches", "Nested try/catch"),
     ("maxDecisionDepth", "Decision depth"),
     ("fanIn", "Fan-in"),
     ("fanOut", "Fan-out"),
@@ -74,19 +75,19 @@ fn size_tables(nodes: &[Value]) -> Vec<String> {
         ));
     }
     if !callables.is_empty() {
-        parts.push(table(
-            "Callables",
-            &callables,
-            &[
-                "lineCount",
-                "parameterCount",
-                "cyclomaticComplexity",
-                "weightedComplexity",
-                "nestedDecisionPenalty",
-                "nestedLoops",
-                "maxDecisionDepth",
-            ],
-        ));
+        let mut names = vec![
+            "lineCount",
+            "parameterCount",
+            "cyclomaticComplexity",
+            "weightedComplexity",
+            "nestedDecisionPenalty",
+            "nestedLoops",
+        ];
+        if callables.iter().any(|node| !node["metrics"]["nestedTryCatches"].is_null()) {
+            names.push("nestedTryCatches");
+        }
+        names.push("maxDecisionDepth");
+        parts.push(table("Callables", &callables, &names));
     }
     parts
 }
