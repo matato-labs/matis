@@ -4,6 +4,8 @@ use super::adapters::elixir;
 use crate::syntax::{field, named_children, text};
 use tree_sitter::Node;
 
+const ELIXIR_IMPLICIT_HANDLERS: &[&str] = &["def", "defp", "defmacro", "defmacrop"];
+
 fn handler_kind(language: &str, kind: &str) -> Option<&'static str> {
     match (language, kind) {
         ("python", "try_statement") => Some("except_clause"),
@@ -28,7 +30,7 @@ pub(crate) fn handles(language: &str, node: Node<'_>, source: &[u8]) -> bool {
 fn elixir_handles(node: Node<'_>, source: &[u8]) -> bool {
     let target = elixir::target(node, source);
     // The walker skips nested declarations before testing implicit handlers.
-    if !matches!(target.as_str(), "try" | "def" | "defp" | "defmacro" | "defmacrop") {
+    if target != "try" && !ELIXIR_IMPLICIT_HANDLERS.contains(&target.as_str()) {
         return false;
     }
     named_children(node).iter().any(|child| match child.kind() {
@@ -38,20 +40,42 @@ fn elixir_handles(node: Node<'_>, source: &[u8]) -> bool {
     })
 }
 
+/// Return the declaration head, whose defaults run outside the implicit body handler.
+pub(crate) fn unprotected_head<'tree>(language: &str, root: Node<'tree>, source: &[u8]) -> Option<Node<'tree>> {
+    if language != "elixir" || !ELIXIR_IMPLICIT_HANDLERS.contains(&elixir::target(root, source).as_str()) {
+        return None;
+    }
+    elixir_expressions(elixir::arguments(Some(root))?).next()
+}
+
+fn elixir_expressions(node: Node<'_>) -> impl Iterator<Item = Node<'_>> {
+    named_children(node).into_iter().filter(|child| child.kind() != "comment")
+}
+
 fn elixir_options(mut node: Node<'_>, source: &[u8]) -> bool {
     // A literal keyword list can be bracketed, with pairs written as atom tuples.
-    while node.kind() == "block" && node.named_child_count() == 1 {
-        node = node.named_child(0).unwrap();
+    while node.kind() == "block" {
+        let mut expressions = elixir_expressions(node);
+        let (Some(expression), None) = (expressions.next(), expressions.next()) else {
+            return false;
+        };
+        node = expression;
     }
     match node.kind() {
         "keywords" => elixir_keywords(node, source),
-        "list" => named_children(node).into_iter().any(|entry| match entry.kind() {
+        "list" => elixir_expressions(node).any(|entry| match entry.kind() {
             "keywords" => elixir_keywords(entry, source),
-            "tuple" if entry.named_child_count() == 2 => elixir_handler_key(entry.named_child(0), source),
+            "tuple" => elixir_tuple(entry, source),
             _ => false,
         }),
         _ => false,
     }
+}
+
+fn elixir_tuple(node: Node<'_>, source: &[u8]) -> bool {
+    let mut expressions = elixir_expressions(node);
+    let key = expressions.next();
+    expressions.next().is_some() && expressions.next().is_none() && elixir_handler_key(key, source)
 }
 
 fn elixir_keywords(node: Node<'_>, source: &[u8]) -> bool {
@@ -69,7 +93,8 @@ fn elixir_handler_key(key: Option<Node<'_>>, source: &[u8]) -> bool {
 pub(crate) fn extra_scope(language: &str, node: Node<'_>) -> bool {
     matches!(
         (language, node.kind()),
-        ("java" | "kotlin", "class_body" | "enum_body" | "enum_class_body")
+        ("typescript" | "tsx", "abstract_class_declaration")
+            | ("java" | "kotlin", "class_body" | "enum_body" | "enum_class_body")
             | (
                 "java",
                 "record_declaration"

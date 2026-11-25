@@ -12,6 +12,9 @@ function flat(): void {
 function independent(): void {
   try {
     const inner = function (): void { try { work(); } catch {} };
+    abstract class Local {
+      static { try { work(); } catch {} }
+    }
     inner();
   } catch {}
 }

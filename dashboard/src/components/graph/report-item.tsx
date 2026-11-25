@@ -50,8 +50,8 @@ export function ReportItem({
           <div>
             <GraphComplexity properties={node.properties} />
             <p className="sidebar-hint">
-              Weighted total includes base decisions plus extra weight for
-              nested decisions and loops. It is not a quality score.
+              Weighted total adds measured nesting penalties to base
+              cyclomatic complexity. It is not a quality score.
             </p>
           </div>
         )}

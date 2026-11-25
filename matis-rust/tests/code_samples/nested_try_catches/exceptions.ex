@@ -11,7 +11,16 @@ defmodule Exceptions do
     catch
       _, _ -> recover()
     else
-      value -> try(([{:do, value}, {:rescue, (_ -> recover())}]))
+      value ->
+        try((
+          # Comments are not expressions in the option block or tuple.
+          [
+            {:do, value},
+            {:rescue,
+             # Recover if the work fails.
+             (_ -> recover())}
+          ]
+        ))
     after
       try(do: work(), rescue: (_ -> recover()))
     end
@@ -43,6 +52,12 @@ defmodule Exceptions do
 
   def implicit do
     try(do: work(), rescue: (_ -> recover()))
+  rescue
+    _ -> try(do: work(), rescue: (_ -> recover()))
+  end
+
+  def default_argument(value \\ try(do: work(), rescue: (_ -> recover()))) do
+    value
   rescue
     _ -> recover()
   end

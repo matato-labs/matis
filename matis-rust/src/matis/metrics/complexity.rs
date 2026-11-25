@@ -15,6 +15,7 @@ pub fn calculate_complexity(root: Node<'_>, policy: &MetricPolicy, source: &[u8]
     let root = policy.body(root);
     let (mut base, mut nested, mut loops, mut maximum) = (1, 0, 0, 0);
     let applicable = exceptions::applicable(&policy.language);
+    let unprotected_head = exceptions::unprotected_head(&policy.language, root, source);
     let mut exception_count = 0;
     let mut stack = vec![(root, 0usize, 0usize, applicable.then_some(false))];
     while let Some((node, mut depth, loop_depth, in_handler)) = stack.pop() {
@@ -31,6 +32,7 @@ pub fn calculate_complexity(root: Node<'_>, policy: &MetricPolicy, source: &[u8]
         let child_loop_depth = loop_depth + usize::from(policy.is_loop(node));
         let in_handler = in_handler.filter(|_| node == root || !exceptions::extra_scope(&policy.language, node));
         let in_handler = in_handler.map(|inside| {
+            let inside = inside && Some(node) != unprotected_head;
             let handles = exceptions::handles(&policy.language, node, source);
             exception_count += usize::from(inside && handles);
             inside || handles

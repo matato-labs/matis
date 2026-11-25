@@ -220,6 +220,10 @@ fn reads_old_graph_metrics_without_migrating() {
     let detail = navigation.show("file").unwrap();
     assert_eq!(detail["node"]["metrics"]["cyclomaticComplexity"], 6);
     assert!(detail["node"]["metrics"].get("nestedTryCatches").is_none());
+
+    let report = crate::bootstrap::repository_service(Some(&path)).unwrap().report("Coffee").unwrap();
+    let node = report["nodes"].as_array().unwrap().iter().find(|node| node["stableKey"] == "file").unwrap();
+    assert_eq!(node["metrics"]["lineCount"], 1);
     assert_eq!(scalar(&db, "SELECT version_num AS value FROM alembic_version"), "0005_mutation_candidates");
 }
 #[test]

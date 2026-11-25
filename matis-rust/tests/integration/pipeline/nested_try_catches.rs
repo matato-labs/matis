@@ -28,9 +28,12 @@ fn real_grammars_count_inner_constructs_not_handlers_or_separate_scopes() {
         ("view.jsx", 1),
         ("view.tsx", 1),
     ];
-    let cases = expectations.into_iter().flat_map(|(path, count)| {
-        [("nested", count), ("flat", 0), ("independent", 0)].map(|(name, want)| (path, name, want))
-    });
+    let cases = expectations
+        .into_iter()
+        .flat_map(|(path, count)| {
+            [("nested", count), ("flat", 0), ("independent", 0)].map(|(name, want)| (path, name, want))
+        })
+        .chain([("exceptions.ex", "implicit", 2), ("exceptions.ex", "default_argument", 0)]);
     for (path, name, want) in cases {
         let node = nodes
             .iter()
@@ -46,14 +49,13 @@ fn real_grammars_count_inner_constructs_not_handlers_or_separate_scopes() {
             .sum();
         assert_eq!(m["weightedComplexity"], old_weight + want, "{path}::{name}");
         let finding = violations.iter().find(|finding| finding["subject"] == node["subject"]);
-        assert_eq!(finding.is_some(), want > 0, "{path}::{name}");
+        assert_eq!(
+            finding.and_then(|finding| finding["actual"].as_u64()),
+            (want > 0).then_some(want),
+            "{path}::{name}"
+        );
     }
     assert_eq!(violations.len(), expectations.len() + 1, "one additional Elixir implicit handler");
-    assert!(
-        violations
-            .iter()
-            .any(|finding| finding["subject"] == "exceptions.ex::Exceptions.implicit" && finding["actual"] == 1)
-    );
     for path in ["errors.go", "errors.rs"] {
         let node = nodes.iter().find(|node| node["subject"] == format!("{path}::ordinary")).unwrap();
         assert!(node["metrics"].get(METRIC).is_none(), "{path}");
