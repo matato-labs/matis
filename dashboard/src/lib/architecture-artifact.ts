@@ -4,6 +4,7 @@ export type NodeComplexity = {
   baseCyclomaticComplexity?: number
   nestedCyclomaticComplexity?: number
   loopNestedComplexity?: number
+  nestedTryCatches?: number
   maxDecisionDepth?: number
 }
 export type NodeSizeMetrics = { lineCount?: number; parameterCount?: number }

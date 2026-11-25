@@ -109,6 +109,7 @@ pub mod graph_node_metrics {
         pub base_complexity: Option<i64>,
         pub nested_complexity: Option<i64>,
         pub loop_complexity: Option<i64>,
+        pub nested_try_catches: Option<i64>,
         pub total_complexity: Option<i64>,
         pub max_decision_depth: Option<i64>,
     }

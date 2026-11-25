@@ -3,12 +3,13 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-pub const SOURCE_METRIC_NAMES: [&str; 7] = [
+pub const SOURCE_METRIC_NAMES: [&str; 8] = [
     "lineCount",
     "parameterCount",
     "baseCyclomaticComplexity",
     "nestedCyclomaticComplexity",
     "loopNestedComplexity",
+    "nestedTryCatches",
     "cyclomaticComplexity",
     "maxDecisionDepth",
 ];
@@ -31,6 +32,8 @@ pub struct Complexity {
     pub base_cyclomatic_complexity: usize,
     pub nested_cyclomatic_complexity: usize,
     pub loop_nested_complexity: usize,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub nested_try_catches: Option<usize>,
     pub cyclomatic_complexity: usize,
     pub max_decision_depth: usize,
 }

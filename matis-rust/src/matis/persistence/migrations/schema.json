@@ -41,7 +41,7 @@
   ],
   [
     "graph_node_metrics",
-    "CREATE TABLE graph_node_metrics (\n\trepository_id TEXT NOT NULL, \n\tnode_key TEXT NOT NULL, \n\tline_count INTEGER, \n\tparameter_count INTEGER, \n\tbase_complexity INTEGER, \n\tnested_complexity INTEGER, \n\tloop_complexity INTEGER, \n\ttotal_complexity INTEGER, \n\tmax_decision_depth INTEGER, \n\tPRIMARY KEY (repository_id, node_key), \n\tFOREIGN KEY(repository_id, node_key) REFERENCES graph_nodes (repository_id, node_key) ON DELETE CASCADE\n)"
+    "CREATE TABLE graph_node_metrics (\n\trepository_id TEXT NOT NULL, \n\tnode_key TEXT NOT NULL, \n\tline_count INTEGER, \n\tparameter_count INTEGER, \n\tbase_complexity INTEGER, \n\tnested_complexity INTEGER, \n\tloop_complexity INTEGER, \n\ttotal_complexity INTEGER, \n\tmax_decision_depth INTEGER, nested_try_catches INTEGER, \n\tPRIMARY KEY (repository_id, node_key), \n\tFOREIGN KEY(repository_id, node_key) REFERENCES graph_nodes (repository_id, node_key) ON DELETE CASCADE\n)"
   ],
   [
     "graph_nodes",

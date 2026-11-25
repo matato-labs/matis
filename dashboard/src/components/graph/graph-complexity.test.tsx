@@ -10,7 +10,8 @@ const metrics = {
   baseCyclomaticComplexity: 5,
   nestedCyclomaticComplexity: 2,
   loopNestedComplexity: 1,
-  cyclomaticComplexity: 8,
+  nestedTryCatches: 2,
+  cyclomaticComplexity: 10,
   maxDecisionDepth: 4,
 }
 
@@ -110,10 +111,11 @@ test('imported complexity survives graph projection and displays its breakdown',
   expect(html).not.toContain('aria-label="Cyclomatic complexity"')
   expect(html).not.toContain('Base complexity')
   for (const [label, value] of [
-    ['Total', 8],
+    ['Total', 10],
     ['Cyclomatic complexity', 5],
     ['Nested decisions extra', 2],
     ['Nested loops extra', 1],
+    ['Nested try/catch extra', 2],
     ['Maximum decision depth', 4],
   ])
     expect(html).toContain(`<dt>${label}</dt><dd>${value}</dd>`)
@@ -136,6 +138,7 @@ test('zero penalties display, missing metrics never become zero', () => {
   const partial = report(fixture({ cyclomaticComplexity: 1 }))
   expect(partial).toContain('<dt>Total</dt><dd>1</dd>')
   expect(partial).not.toContain('Nested loops extra')
+  expect(partial).not.toContain('Nested try/catch extra')
 })
 
 test('containers and constructors do not show complexity', () => {

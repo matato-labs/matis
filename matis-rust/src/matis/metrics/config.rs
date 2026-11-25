@@ -6,13 +6,14 @@ use anyhow::{Result, anyhow, bail};
 use serde_json::{Value, json};
 use std::{fs, io::ErrorKind, path::Path};
 
-pub const LIMITS: [&str; 11] = [
+pub const LIMITS: [&str; 12] = [
     "maxFileLines",
     "maxFunctionLines",
     "maxParameters",
     "maxWeightedComplexity",
     "maxDecisionDepth",
     "maxNestedLoops",
+    "maxNestedTryCatches",
     "maxCircularImportGroups",
     "maxChangeImpact",
     "maxInstability",
@@ -23,7 +24,7 @@ pub const LIMITS: [&str; 11] = [
 /// Return default check limits; null limits disable change-impact and instability checks.
 pub fn default_config() -> Value {
     json!({"maxFileLines": 700, "maxFunctionLines": 150, "maxParameters": 3, "maxWeightedComplexity": 8,
-        "maxDecisionDepth": 3, "maxNestedLoops": 0, "maxCircularImportGroups": 0,
+        "maxDecisionDepth": 3, "maxNestedLoops": 0, "maxNestedTryCatches": 0, "maxCircularImportGroups": 0,
         "maxChangeImpact": null, "maxInstability": null, "maxFanIn": 30, "maxFanOut": 20, "fanExclude": [],
         "forbiddenCalls": [], "forbiddenConstructors": [], "forbiddenDependencies": []})
 }

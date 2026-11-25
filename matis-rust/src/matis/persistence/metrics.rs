@@ -7,7 +7,10 @@ use super::{
 };
 use crate::domain::{graph_artifact::*, storage::NodeMetricsPort};
 use anyhow::Result;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ColumnTrait, EntityTrait, QueryFilter, QuerySelect, Select,
+    sea_query::{Asterisk, Expr},
+};
 use serde_json::Value;
 use std::collections::HashMap;
 pub(crate) struct Store(pub Session);
@@ -22,16 +25,24 @@ fn metric_record(id: &str, key: &str, n: &Value) -> GraphNodeMetricRow {
         base_complexity: p["baseCyclomaticComplexity"].as_i64(),
         nested_complexity: p["nestedCyclomaticComplexity"].as_i64(),
         loop_complexity: p["loopNestedComplexity"].as_i64(),
+        nested_try_catches: p["nestedTryCatches"].as_i64(),
         total_complexity: p["cyclomaticComplexity"].as_i64(),
         max_decision_depth: p["maxDecisionDepth"].as_i64(),
     }
+}
+
+// SELECT * lets SeaORM read an absent nullable column as None on pre-0006 databases.
+fn select_metrics() -> Select<graph_node_metrics::Entity> {
+    let mut query = graph_node_metrics::Entity::find().select_only();
+    QuerySelect::query(&mut query).expr(Expr::col(Asterisk));
+    query
 }
 
 impl NodeMetricsPort for Store {
     fn all(&self, id: &str) -> Result<HashMap<String, Value>> {
         self.0.with(|c| {
             run(async {
-                Ok(graph_node_metrics::Entity::find()
+                Ok(select_metrics()
                     .filter(graph_node_metrics::Column::RepositoryId.eq(id))
                     .all(c)
                     .await?
@@ -44,7 +55,9 @@ impl NodeMetricsPort for Store {
     fn get(&self, id: &str, key: &str) -> Result<Value> {
         self.0.with(|c| {
             run(async {
-                Ok(graph_node_metrics::Entity::find_by_id((id.to_owned(), key.to_owned()))
+                Ok(select_metrics()
+                    .filter(graph_node_metrics::Column::RepositoryId.eq(id))
+                    .filter(graph_node_metrics::Column::NodeKey.eq(key))
                     .one(c)
                     .await?
                     .map(metric_value)

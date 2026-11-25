@@ -11,13 +11,14 @@ use anyhow::{Result, anyhow};
 use serde_json::{Value, json};
 use std::{cmp::Ordering, collections::BTreeSet};
 
-const RULES: [(&str, &str, &[&str]); 6] = [
+const RULES: [(&str, &str, &[&str]); 7] = [
     ("maxFileLines", "lineCount", &["file"]),
     ("maxFunctionLines", "lineCount", &["function", "method"]),
     ("maxParameters", "parameterCount", &["function", "method"]),
     ("maxWeightedComplexity", "weightedComplexity", &["function", "method"]),
     ("maxDecisionDepth", "maxDecisionDepth", &["function", "method"]),
     ("maxNestedLoops", "nestedLoops", &["function", "method"]),
+    ("maxNestedTryCatches", "nestedTryCatches", &["function", "method"]),
 ];
 const FAN_RULES: [(&str, &str); 2] = [("maxFanIn", "fanIn"), ("maxFanOut", "fanOut")];
 const DEPENDENCY_RULES: [(&str, &str); 2] =
@@ -89,7 +90,10 @@ fn enabled_limits<'a>(
     let kind = node["kind"].as_str().unwrap_or("");
     let mut rules: Vec<_> = RULES
         .into_iter()
-        .filter(|(_, _, kinds)| kinds.contains(&kind))
+        .filter(|(_, metric, kinds)| {
+            // Old reports and languages without lexical exception handlers have no measurement.
+            kinds.contains(&kind) && (*metric != "nestedTryCatches" || !node["metrics"][*metric].is_null())
+        })
         .map(|(rule, metric, _)| (rule, metric))
         .collect();
     if node["level"] == "module" || node["level"] == "file" {

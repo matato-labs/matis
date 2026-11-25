@@ -318,6 +318,22 @@ fn invalid_project(root: &Path, source: &str) -> String {
 }
 
 #[test]
+fn exception_nesting_is_unavailable_without_a_language_policy() {
+    use matis::metrics::complexity::default_complexity;
+    let source = b"function f() { try { try {} catch {} } catch {} }";
+    let mut parser = tree_sitter::Parser::new();
+    parser.set_language(&tree_sitter_language_pack::get_language("javascript").unwrap()).unwrap();
+    let tree = parser.parse(source, None).unwrap();
+    assert!(!tree.root_node().has_error());
+    let fallback = default_complexity(tree.root_node().named_child(0).unwrap(), source);
+    assert_eq!(fallback.nested_try_catches, None);
+    let serialized = serde_json::to_value(fallback).unwrap();
+    assert!(serialized.get("nestedTryCatches").is_none());
+    let restored: matis::domain::models::Complexity = serde_json::from_value(serialized).unwrap();
+    assert_eq!(restored.nested_try_catches, None);
+}
+
+#[test]
 fn arbitrary_size_limits_remain_exact_json_integers() {
     let integer = "9".repeat(400);
     let number: Value = serde_json::from_str(&integer).unwrap();
@@ -331,6 +347,7 @@ fn arbitrary_size_limits_remain_exact_json_integers() {
         "maxWeightedComplexity",
         "maxDecisionDepth",
         "maxNestedLoops",
+        "maxNestedTryCatches",
         "maxCircularImportGroups",
         "maxChangeImpact",
         "maxFanIn",

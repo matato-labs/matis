@@ -39,7 +39,8 @@ fn legacy(path: &Path, count: usize) -> DatabaseConnection {
     if count >= 3 {
         execute(
             &db,
-            "INSERT INTO graph_node_metrics VALUES('id','file',1,2,3,4,5,6,7);
+            "INSERT INTO graph_node_metrics (repository_id,node_key,line_count,parameter_count,base_complexity,nested_complexity,loop_complexity,total_complexity,max_decision_depth)
+                VALUES('id','file',1,2,3,4,5,6,7);
             INSERT INTO graph_node_decorators VALUES('id','file',0,'decorator');
             INSERT INTO graph_edges VALUES('id',0,'file','file','CALLS','SYNTACTIC','coffee.py','evidence',1,0);
             INSERT INTO graph_diagnostics VALUES('id',0,'warning','coffee.py','python','message');",
@@ -65,7 +66,7 @@ fn snapshot(db: &DatabaseConnection) -> Vec<(String, String)> {
                     .unwrap()
                     .into_iter()
                     .map(|r| r.try_get::<String>("", "name").unwrap())
-                    .filter(|n| n != "artifact")
+                    .filter(|n| !matches!(n.as_str(), "artifact" | "nested_try_catches"))
                     .collect::<Vec<_>>();
             let columns = if table == "repository_graphs" {
                 [
@@ -100,7 +101,10 @@ fn adopts_every_alembic_revision_without_replaying_or_changing_rows() {
         let after = snapshot(&db);
         assert!(before.iter().all(|row| after.contains(row)), "revision {count}: {before:?}");
         assert_eq!(scalar(&db, "SELECT version_num AS value FROM alembic_version"), REVISIONS.last().unwrap().0);
-        assert_eq!(scalar(&db, "SELECT CAST(count(*) AS TEXT) AS value FROM seaql_migrations"), "5");
+        assert_eq!(
+            scalar(&db, "SELECT CAST(count(*) AS TEXT) AS value FROM seaql_migrations"),
+            REVISIONS.len().to_string()
+        );
         let tracking =
             scalar(&db, "SELECT json_group_array(json_array(version,applied_at)) AS value FROM seaql_migrations");
         migrate_database(Some(&path)).unwrap();
@@ -127,7 +131,10 @@ fn migration_waits_for_an_existing_writer() {
     assert!(matches!(early, Err(std::sync::mpsc::RecvTimeoutError::Timeout)), "{early:?}");
     receive.recv().unwrap().unwrap();
     assert_eq!(scalar(&db, "SELECT version_num AS value FROM alembic_version"), REVISIONS.last().unwrap().0);
-    assert_eq!(scalar(&db, "SELECT CAST(count(*) AS TEXT) AS value FROM seaql_migrations"), "5");
+    assert_eq!(
+        scalar(&db, "SELECT CAST(count(*) AS TEXT) AS value FROM seaql_migrations"),
+        REVISIONS.len().to_string()
+    );
 }
 #[test]
 fn migration_lock_timeout_rolls_back_and_leaves_connection_reusable() {
@@ -203,6 +210,17 @@ fn migration_failure_rolls_back_ddl_adoption_and_both_version_tables() {
     );
     execute(&db, "DROP TABLE graph_edges");
     migrate_database(Some(&path)).unwrap();
+}
+#[test]
+fn reads_old_graph_metrics_without_migrating() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("legacy.sqlite");
+    let db = legacy(&path, REVISIONS.len() - 1);
+    let mut navigation = crate::bootstrap::navigation_service(Some("id"), None, Some(&path)).unwrap();
+    let detail = navigation.show("file").unwrap();
+    assert_eq!(detail["node"]["metrics"]["cyclomaticComplexity"], 6);
+    assert!(detail["node"]["metrics"].get("nestedTryCatches").is_none());
+    assert_eq!(scalar(&db, "SELECT version_num AS value FROM alembic_version"), "0005_mutation_candidates");
 }
 #[test]
 fn rejects_unknown_or_ahead_seaorm_history() {

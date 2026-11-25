@@ -67,6 +67,7 @@ export const graphMetrics = sqliteTable(
     baseCyclomaticComplexity: integer('base_complexity'),
     nestedCyclomaticComplexity: integer('nested_complexity'),
     loopNestedComplexity: integer('loop_complexity'),
+    nestedTryCatches: integer('nested_try_catches'),
     cyclomaticComplexity: integer('total_complexity'),
     maxDecisionDepth: integer('max_decision_depth'),
   },

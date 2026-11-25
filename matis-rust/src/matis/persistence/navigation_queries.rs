@@ -18,12 +18,16 @@ pub fn node_value(node: GraphNodeRow, symbol: Option<GraphSymbolRow>) -> Value {
     }
     value
 }
-/// Convert stored metrics to camelCase navigation fields, preserving null values.
+/// Convert stored metrics to camelCase navigation fields, omitting an unavailable nested try/catch count.
 pub fn metric_value(m: GraphNodeMetricRow) -> Value {
-    json!({"lineCount": m.line_count, "parameterCount": m.parameter_count,
+    let mut value = json!({"lineCount": m.line_count, "parameterCount": m.parameter_count,
         "baseCyclomaticComplexity": m.base_complexity, "nestedCyclomaticComplexity": m.nested_complexity,
         "loopNestedComplexity": m.loop_complexity, "cyclomaticComplexity": m.total_complexity,
-        "maxDecisionDepth": m.max_decision_depth})
+        "maxDecisionDepth": m.max_decision_depth});
+    if let Some(count) = m.nested_try_catches {
+        value["nestedTryCatches"] = json!(count);
+    }
+    value
 }
 /// Convert an edge row to navigation JSON; include its artifact ordinal only when `ordinal` is true.
 pub fn edge_value(e: GraphEdgeRow, ordinal: bool) -> Value {
